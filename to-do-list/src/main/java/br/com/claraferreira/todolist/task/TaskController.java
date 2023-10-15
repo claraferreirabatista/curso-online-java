@@ -20,70 +20,64 @@ import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/tasks")
-public class TaskControlller {
+public class TaskController {
 
     @Autowired
     private ITaskRepository taskRepository;
 
-    // Definição do endpoint POST para criar uma tarefa
     @PostMapping("/")
     public ResponseEntity create(@RequestBody TaskModel taskModel, HttpServletRequest request) {
-
-        // Obtém o ID do usuário a partir do HttpServletRequest
         var idUser = request.getAttribute("idUser");
         taskModel.setIdUser((UUID) idUser);
 
-        // Obtém a data e hora atual
         var currentDate = LocalDateTime.now();
-
-        // Verifica se a data atual é posterior à data de início ou à data de término da
-        // tarefa
+        // 10/11/2023 - Current
+        // 10/10/2023 - startAt
         if (currentDate.isAfter(taskModel.getStartAt()) || currentDate.isAfter(taskModel.getEndAt())) {
-            // Retorna uma resposta de erro com status 400 (Bad Request) e uma mensagem
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("A data precisa ser maior");
+                    .body("A data de início / data de término deve ser maior do que a data atual");
         }
 
-        // Verifica se a data de início da tarefa é posterior à data de término
         if (taskModel.getStartAt().isAfter(taskModel.getEndAt())) {
-            // Retorna uma resposta de erro com status 400 (Bad Request) e uma mensagem
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("A data precisa ser menor");
+                    .body("A data de início deve ser menor do que a data de término");
         }
 
-        // Salva a tarefa no repositório e retorna uma resposta com status 200 (OK)
         var task = this.taskRepository.save(taskModel);
         return ResponseEntity.status(HttpStatus.OK).body(task);
+
     }
 
-    // Definição do endpoint GET para listar as tarefas
     @GetMapping("/")
     public List<TaskModel> list(HttpServletRequest request) {
-        // Obtém o ID do usuário a partir do HttpServletRequest
         var idUser = request.getAttribute("idUser");
-        // Obtém as tarefas associadas ao usuário
         var tasks = this.taskRepository.findByIdUser((UUID) idUser);
         return tasks;
     }
 
-    // Definição do endpoint PUT para atualizar uma tarefa com base no seu ID
+    // http://localhost:8080/tasks/892347823-cdfgcvb-832748234
     @PutMapping("/{id}")
-    public ResponseEntity update(@RequestBody TaskModel taskModel, @PathVariable UUID id, HttpServletRequest request) {
+    public ResponseEntity update(@RequestBody TaskModel taskModel, @PathVariable UUID id,
+            HttpServletRequest request) {
         var task = this.taskRepository.findById(id).orElse(null);
+
         if (task == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Essa tarefa tem ID incorreto");
+                    .body("Tarefa não encontrada");
         }
 
         var idUser = request.getAttribute("idUser");
+
         if (!task.getIdUser().equals(idUser)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Você não é autorizado para isso");
+                    .body("Usuário não tem permissão para alterar essa tarefa");
         }
+
         Utils.copyNonNullProperties(taskModel, task);
 
         var taskUpdated = this.taskRepository.save(task);
+        return ResponseEntity.ok().body(this.taskRepository.save(taskUpdated));
 
-        return ResponseEntity.ok().body(taskUpdated);
     }
+
 }

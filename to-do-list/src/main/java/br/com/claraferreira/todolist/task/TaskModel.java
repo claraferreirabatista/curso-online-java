@@ -11,35 +11,31 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import lombok.Data;
 
-@Data // Usando o Lombok para gerar automaticamente getters, setters, toString, etc.
-
-@Entity(name = "tb_tasks") // Esta classe é uma entidade JPA mapeada para a tabela "tb_tasks" no banco de
-                           // dados.
-
+@Data
+@Entity(name = "tb_tasks")
 public class TaskModel {
-    @Id // A seguir, declaração do campo ID como a chave primária.
-    @GeneratedValue(generator = "UUID") // O valor do campo ID será gerado automaticamente, usando UUID.
 
-    private UUID id; // Campo de identificação exclusiva para cada tarefa.
-    private String name; // Nome da tarefa.
-    private String description; // Descrição da tarefa.
+    @Id
+    @GeneratedValue(generator = "UUID")
+    private UUID id;
+    private String description;
 
-    @Column(length = 50) // Especifica o comprimento máximo da coluna 'title' no banco de dados.
-    private String title; // Título da tarefa.
-    private LocalDateTime startAt; // Data e hora de início da tarefa.
-    private LocalDateTime endAt; // Data e hora de término da tarefa.
-    private String priority; // Prioridade da tarefa.
+    @Column(length = 50)
+    private String title;
+    private LocalDateTime startAt;
+    private LocalDateTime endAt;
+    private String priority;
 
-    private UUID idUser; // ID do usuário associado a esta tarefa.
+    private UUID idUser;
 
-    @CreationTimestamp // Esta anotação indica que o campo 'createdAt' será preenchido automaticamente
-                       // com a data e hora de criação.
-    private LocalDateTime createdAt; // Data e hora em que a tarefa foi criada.
+    @CreationTimestamp
+    private LocalDateTime createdAt;
 
     public void setTitle(String title) throws Exception {
         if (title.length() > 50) {
-            throw new Exception("O campo utrapassou quantidade máxima de caracteres");
+            throw new Exception("O campo title deve conter no máximo 50 caracteres");
         }
         this.title = title;
     }
+
 }

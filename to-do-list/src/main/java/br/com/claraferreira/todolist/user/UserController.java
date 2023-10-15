@@ -10,31 +10,29 @@ import org.springframework.web.bind.annotation.RestController;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
 
-@RestController  // Define que esta classe é um controlador Spring MVC.
-@RequestMapping("/users")  // Define o caminho base para todas as rotas deste controlador.
-
+@RestController
+@RequestMapping("/users")
 public class UserController {
 
-    @Autowired  // Injeta a instância do IUserRepository para permitir o acesso ao banco de dados.
+    @Autowired
     private IUserRepository userRepository;
 
-    @PostMapping("/")  // Mapeia a rota POST para a criação de um novo usuário.
-    public ResponseEntity create(@RequestBody UserModel userModel) {  // Método que recebe uma solicitação POST com um objeto UserModel no corpo da solicitação.
-
-        // Busca um usuário com o mesmo nome de usuário no banco de dados.
+    @PostMapping("/")
+    public ResponseEntity create(@RequestBody UserModel userModel) {
         var user = this.userRepository.findByUsername(userModel.getUsername());
+
         if (user != null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Usuário existe");  // Se o usuário já existe, retorna um status HTTP 400 (Bad Request).
+            // Mensagem de erro
+            // Status Code
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Usuário já existe");
         }
 
-        // Hash da senha do usuário usando o algoritmo BCrypt.
         var passwordHashred = BCrypt.withDefaults()
-            .hashToString(12, userModel.getPassword().toCharArray());
+                .hashToString(12, userModel.getPassword().toCharArray());
 
-        userModel.setPassword(passwordHashred);  // Define a senha do usuário como o hash gerado.
+        userModel.setPassword(passwordHashred);
 
-        // Salva o usuário no banco de dados.
         var userCreated = this.userRepository.save(userModel);
-        return ResponseEntity.status(HttpStatus.CREATED).body(userCreated);  // Retorna um status HTTP 201 (Created) com o usuário criado.
+        return ResponseEntity.status(HttpStatus.OK).body(userCreated);
     }
 }
