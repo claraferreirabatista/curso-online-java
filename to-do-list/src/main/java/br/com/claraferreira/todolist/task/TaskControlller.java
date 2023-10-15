@@ -20,7 +20,7 @@ public class TaskControlller {
     @PostMapping("/")
 
     public ResponseEntity create(@RequestBody TaskModel taskModel) {
-
+        System.out.println("chegou no controller");
         var task = this.taskRepository.findByTitle(taskModel.getTitle());
         if (task != null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Tarefa existe");
