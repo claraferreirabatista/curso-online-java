@@ -19,18 +19,16 @@ public class TaskModel {
     private UUID id;
     private String name;
     private String description;
-    
+
     @Column(length = 50)
     private String title;
     private LocalDateTime startAt;
     private LocalDateTime endAt;
     private String priority;
 
-    private UUID userId;
+    private UUID idUser;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
-
-    
 
 }
