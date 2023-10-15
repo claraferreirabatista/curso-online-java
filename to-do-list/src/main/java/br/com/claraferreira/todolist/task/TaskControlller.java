@@ -31,11 +31,15 @@ public class TaskControlller {
 
         var currentDate = LocalDateTime.now();
 
-        if (currentDate.isAfter(taskModel.getStartAt())) {
+        if (currentDate.isAfter(taskModel.getStartAt()) || currentDate.isAfter(taskModel.getEndAt())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("corrija a data para um valor igual ou menor que hoje");
+                    .body("A data precisa ser maior");
         }
-
+        if (taskModel.getStartAt().isAfter(taskModel.getEndAt())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("A data precisa ser menor");
+        }
+        
         var task = this.taskRepository.save(taskModel);
 
         return ResponseEntity.status(HttpStatus.OK).body(task);
