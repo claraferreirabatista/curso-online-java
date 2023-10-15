@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.claraferreira.todolist.utils.Utils;
 import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
@@ -68,14 +69,8 @@ public class TaskControlller {
     // Definição do endpoint PUT para atualizar uma tarefa com base no seu ID
     @PutMapping("/{id}")
     public TaskModel update(@RequestBody TaskModel taskModel, @PathVariable UUID id, HttpServletRequest request) {
-        // Obtém o ID do usuário a partir do HttpServletRequest
-        var idUser = request.getAttribute("idUser");
-        taskModel.setIdUser((UUID) idUser);
-
-        // Define o ID da tarefa com base no parâmetro da URL
-        taskModel.setId(id);
-
-        // Salva a tarefa atualizada no repositório e a retorna
-        return this.taskRepository.save(taskModel);
+        var task = this.taskRepository.findById(id).orElse(null);
+        Utils.copyNonNullProperties(taskModel, task);
+        return this.taskRepository.save(task);
     }
 }
